@@ -1,0 +1,1127 @@
+
+	List of KYLINOS maintainers and how to submit kernel changes
+
+	OPTIONAL CC: the maintainers and mailing lists that are generated
+	by get_maintainer.pl.	 The results returned by the script will be
+	best if you have git installed and are making your changes in a
+	branch derived from the latest KYLINOS kernel git tree.
+
+Descriptions of section entries:
+
+	P: Person (obsolete)
+	M: Mail patches to: FullName <address@domain>
+	L: Mailing list that is relevant to this area
+	W: Web-page with status/info
+	T: SCM tree type and location.	Type is one of: git, hg, quilt, stgit.
+	S: Status, one of the following:
+	   Supported:	This feature is supported.
+	   Provided:	This feature is provided for a supported feature.
+	   Internal:	This feature is only provided for internal use.
+	F: Files and directories with wildcard patterns.
+	   A trailing slash includes all files and subdirectory files.
+	   F:	drivers/net/	all files in and below drivers/net
+	   F:	drivers/net/*	all files in drivers/net, but not below
+	   F:	*/net/*		all files in "any top level directory"/net
+	   One pattern per line.  Multiple F: lines acceptable.
+	X: Files and directories that are NOT maintained, same rules as F:
+	   Files exclusions are tested before file matches.
+	   Can be useful for excluding a specific subdirectory, for instance:
+	   F:	net/
+	   X:	net/ipv6/
+	   matches all files in and below net excluding net/ipv6/
+	N: Files and directories *Regex* patterns.
+	   N:	[^a-z]tegra	all files whose path contains tegra
+				(not including files like integrator)
+	   One pattern per line.  Multiple N: lines acceptable.
+	   scripts/get_maintainer.pl has different behavior for files that
+	   match F: pattern and matches of N: patterns.  By default,
+	   get_maintainer will not look at git log history when an F: pattern
+	   match occurs.  When an N: match occurs, git log history is used
+	   to also notify the people that have git commit signatures.
+	K: *Content regex* (perl extended) pattern match in a patch or file.
+	   For instance:
+	   K: of_get_profile
+	      matches patches or files that contain "of_get_profile"
+	   K: \b(printk|pr_(info|err))\b
+	      matches patches or files that contain one or more of the words
+	      printk, pr_info or pr_err
+	   One regex pattern per line.	Multiple K: lines acceptable.
+	I: Additional subject tag for kylinos patch submission.
+
+Note: For the hard of thinking, this list is meant to remain in alphabetical
+order. If you could add yourselves to it in alphabetical order that would be
+so much easier [Ed]
+
+KYLIN Kernel Maintainers List (try to look for most precise areas first)
+
+		-----------------------------------
+
+KYLIN KERNEL MAINTAINER
+M:	Liu Yun <liuyun01@kylinos.cn>
+M:	Liu Zhengyuan <liuzhengyuan@kylinos.cn>
+M:	Chen Zhang <chenzhang@kylinos.cn>
+M:	Sun Ke <sunke@kylinos.cn>
+S:	Supported
+F:	Makefile
+F:	Makefile.kylin
+F:	MAINTAINERS/
+F:	scripts/merge-tree.sh
+F:	kylin/
+X:	kylin/gpu/
+X:	kylin/ngbe/
+X:	kylin/ngbevf/
+X:	kylin/qaxkws/
+X:	kylin/txgbe/
+X:	kylin/txgbevf/
+X:	kylin/zxgb/
+
+ACPI SUBSYSTEM
+M:	Wang Qi <wangqi@kylinos.cn>
+M:	Xiong Xin <xiongxin@kylinos.cn>
+R:	wubin <wubin@kylinos.cn>
+R:	wangxuewen <wangxuewen@kylinos.cn>
+R:	Lu Riwen <luriwen@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	drivers/acpi/
+F:	drivers/pnp/pnpacpi/
+F:	include/linux/acpi.h
+F:	include/acpi/
+F:	arch/x86/kernel/acpi/
+F:	arch/arm64/kernel/acpi*
+
+AIO AND IO_URING
+M:	Hu Hai <huhai@kylinos.cn>
+M:	Liu Zhengyuan <liuzhengyuan@kylinos.cn>
+M:	Liu Yun <liuyun01@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+R:	Wang Yufeng <wangyufeng@kylinos.cn>
+R:	Tan Zheng <tanzheng@kylinos.cn>
+R:	Lei Xiang <leixiang@kylinos.cn>
+S:	Supported
+F:	fs/aio.c
+F:	fs/io_uring.c
+F:	fs/io-wq.c
+F:	include/linux/*aio*.h
+
+ALSA SOUND DRIVER
+M:	Sun Ke <sunke@kylinos.cn>
+M:	Zhao Dongdong <zhaodongdong@kylinos.cn>
+R:	Song Xiebing <songxiebing@kylinos.cn>
+R:	Yu jun <yujun@kylinos.cn>
+R:	Wang Dicheng <wangdicheng@kylinos.cn>
+R:	tianyu <tianyu@kylinos.cn>
+R:	Yongzhen Zhang <zhangyongzhen@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	sound/
+F:	drivers/soundwire/
+F:	drivers/media/pci/saa7134/saa7134-alsa.c
+F:	drivers/media/pci/cx23885/cx23885-alsa.c
+F:	drivers/media/pci/cx25821/cx25821-alsa.c
+F:	drivers/media/pci/cx18/cx18-alsa*
+F:	drivers/media/pci/cx88/cx88-alsa*
+F:	drivers/media/pci/cobalt/cobalt-alsa*
+F:	drivers/media/pci/ivtv/ivtv-alsa*
+F:	drivers/media/usb/tm6000/tm6000-alsa.c
+
+NET AND ETHERNET DRIVERS
+M:	Xiao Linkui <xiaolinkui@kylinos.cn>
+M:	Chen Zhang <chenzhang@kylinos.cn>
+M:	Lu Yun <luyun@kylinos.cn>
+R:	Jackie Liu <liuyun01@kylinos.cn>
+R:	Chen Yuan <chenyuan@kylinos.cn>
+R:	Chenguang Zhao <zhaochenguang@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+R:	Wei Rongguang <weirongguang@kylinos.cn>
+R:	Luo Qing <luoqing@kylinos.cn>
+R:	Tang Longjun <tanglongjun@kylinos.cn>
+R:	Lei Xiang <leixiang@kylinos.cn>
+R:	He Minhong <heminhong@kylinos.cn>
+R:	zhulei <zhulei@kylinos.cn>
+S:	Supported
+F:	Documentation/networking/
+F:	drivers/net/
+F:	include/linux/if_bonding.h
+F:	net/
+F:	include/net/devlink.h
+F:	include/uapi/linux/devlink.h
+F:	include/linux/if_bridge.h
+F:	drivers/of/of_mdio.c
+F:	include/linux/*mdio*.h
+F:	include/linux/phy.h
+F:	include/linux/phy_fixed.h
+F:	include/linux/platform_data/mdio-bcm-unimac.h
+F:	include/linux/platform_data/mdio-gpio.h
+F:	include/trace/events/mdio.h
+F:	include/uapi/linux/mdio.h
+F:	include/uapi/linux/mii.h
+F:	include/net/
+F:	include/linux/eth*
+F:	include/linux/filter.h
+F:	include/linux/icmp*
+F:	include/linux/if*
+F:	include/linux/in[.6e]*
+F:	include/linux/ip.h
+F:	include/linux/ipv6*
+F:	include/linux/llc.h
+F:	include/linux/mroute*
+F:	include/linux/net*
+F:	include/linux/*netlink*
+F:	include/linux/openvswitch.h
+F:	include/linux/ppp_channel.h
+F:	include/linux/ppp-comp.h
+F:	include/linux/ppp_defs.h
+F:	include/linux/sctp.h
+F:	include/linux/seg6*
+F:	include/linux/skb*
+F:	include/linux/sock*
+F:	include/linux/tcp.h
+F:	include/linux/tfrc.h
+F:	include/linux/udp.h
+F:	include/uapi/linux/devlink.h
+F:	include/uapi/linux/eth*
+F:	include/uapi/linux/filter.h
+F:	include/uapi/linux/genetlink.h
+F:	include/uapi/linux/icmp*
+F:	include/uapi/linux/if*
+F:	include/uapi/linux/in[.6e]*
+F:	include/uapi/linux/ip[._sv6]*
+F:	include/uapi/linux/llc.h
+F:	include/uapi/linux/lwtunnel.h
+F:	include/uapi/linux/mroute*
+F:	include/uapi/linux/net*
+F:	include/uapi/linux/netlink*
+F:	include/uapi/linux/openvswitch.h
+F:	include/uapi/linux/pkt_*
+F:	include/uapi/linux/ppp-comp.h
+F:	include/uapi/linux/ppp_defs.h
+F:	include/uapi/linux/ppp-ioctl.h
+F:	include/uapi/linux/rtnetlink.h
+F:	include/uapi/linux/sctp.h
+F:	include/uapi/linux/seg6*
+F:	include/uapi/linux/sock*
+F:	include/uapi/linux/tc_*/*
+F:	include/uapi/linux/tcp*
+F:	include/uapi/linux/tls.h
+F:	include/uapi/linux/udp.h
+F:	include/uapi/linux/xfrm.h
+F:	lib/nlattr.c
+F:	tools/testing/selftests/net/
+X:	include/net/*80211*
+X:	include/net/*80215*
+X:	include/net/af_vsock.h
+X:	include/net/bluetooth/
+X:	include/net/intel/
+X:	include/net/irda/
+X:	include/net/iucv/
+X:	include/net/iw*
+X:	include/net/regulatory.h
+X:	include/net/vsock_addr.h
+X:	net/bluetooth/
+X:	net/vmw_vsock/
+X:	drivers/net/virtio_net.c
+X:	drivers/net/vsockmon.c
+F:	kylin/ngbe/
+F:	kylin/ngbevf/
+F:	kylin/qaxkws/
+F:	kylin/txgbe/
+F:	kylin/txgbevf/
+F:	kylin/zxgb/
+
+INFINIBAND SUBSYSTEM
+M:	Xiao Linkui <xiaolinkui@kylinos.cn>
+M:	Lu Yun <luyun@kylinos.cn>
+R:	Chenguang Zhao <zhaochenguang@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+S:	Supported
+F:	drivers/infiniband/
+F:	include/rdma/
+F:	include/uapi/rdma/
+F:	include/uapi/linux/if_infiniband.h
+F:	Documentation/infiniband/
+
+IOMMU
+M:	Xie Ming <xieming@kylinos.cn>
+M:	Sun Liming <sunliming@kylinos.cn>
+M:	Li Weishi <liweishi@kylinos.cn>
+R:	Wang Yufeng <wangyufeng@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	Tang Longjun <tanglongjun@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+R:	Lei Xiang <leixiang@kylinos.cn>
+S:	Supported
+F:	drivers/iommu/
+F:	include/linux/amd-iommu.h
+F:	include/linux/intel-iommu.h
+
+SATA/SAS/RAID Host Bus Adapter
+M:	Hu Hai <huhai@kylinos.cn>
+M:	Liu Zhengyuan <liuzhengyuan@kylinos.cn>
+R:	Tan Zheng <tanzheng@kylinos.cn>
+R:	pengyu <pengyu@kylinos.cn>
+R:	Jiangshan Yi <yijiangshan@kylinos.cn>
+S:	Supported
+F:	drivers/scsi/
+F:	include/scsi/
+F:	drivers/ata/
+F:	include/linux/ata.h
+F:	include/linux/libata.h
+
+ARM64 PORT (AARCH64 ARCHITECTURE)
+M:	Sun Liming <sunliming@kylinos.cn>
+M:	Zhang Duo <zhangduo@kylinos.cn>
+R:	Jackie Liu <liuyun01@kylinos.cn>
+R:	Enze Li <lienze@kylinos.cn>
+R:	liubaolin <liubaolin@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+R:	Jiang Xiujie <jiangxiujie@kylinos.cn>
+S:	Supported
+F:	arch/arm64/
+F:	arch/arm64/include/asm/arch_timer.h
+F:	drivers/clocksource/arm_arch_timer.c
+F:	drivers/irqchip/irq-gic*
+F:	include/linux/irqchip/arm-gic*
+F:	arch/arm*/kernel/perf_*
+F:	arch/arm/oprofile/common.c
+F:	arch/arm*/kernel/hw_breakpoint.c
+F:	arch/arm*/include/asm/hw_breakpoint.h
+F:	arch/arm*/include/asm/perf_event.h
+F:	drivers/perf/
+F:	include/linux/perf/arm_pmu.h
+
+AUDIT SUBSYSTEM
+M:	Yang Zhao <yangzhao@kylinos.cn>
+S:	Supported
+F:	include/linux/audit.h
+F:	include/uapi/linux/audit.h
+F:	kernel/audit*
+
+BLOCK LAYER
+M:	Hu Hai <huhai@kylinos.cn>
+M:	Liu Zhengyuan <liuzhengyuan@kylinos.cn>
+M:	Liu Yun <liuyun01@kylinos.cn>
+R:	liubaolin <liubaolin@kylinos.cn>
+R:	wangxuewen <wangxuewen@kylinos.cn>
+R:	mengfanhui <mengfanhui@kylinos.cn>
+R:	wangyufeng <wangyufeng@kylinos.cn>
+R:	pengyu <pengyu@kylinos.cn>
+R:	liyouhong <liyouhong@kylinos.cn>
+R:	Jiangshan Yi <yijiangshan@kylinos.cn>
+R:	pengcan <pengcan@kylinos.cn>
+S:	Supported
+F:	block/
+F:	drivers/block/
+F:	drivers/target/
+F:	include/target/
+X:	drivers/block/virtio_blk.c
+
+BLUETOOTH SUBSYSTEM
+M:	Huang Lei <huanglei@kylinos.cn>
+M:	Zhao Dongdong <zhaodongdong@kylinos.cn>
+R:	Li Gongwei <ligongwei@kylinos.cn>
+R:	Chen changcheng <chenchangcheng@kylinos.cn>
+R:	Chenguang Zhao <zhaochenguang@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	drivers/bluetooth/
+F:	include/net/bluetooth/
+F:	net/bluetooth/
+
+BPF AND eBPF SUBSYSTEM
+M:	Xiao Linkui <xiaolinkui@kylinos.cn>
+M:	Chen Zhang <chenzhang@kylinos.cn>
+M:	Liu Yun <liuyun01@kylinos.cn>
+M:	Lu Yun <luyun@kylinos.cn>
+M:	Zhang Duo <zhangduo@kylinos.cn>
+S:	Supported
+F:	arch/*/net/*
+F:	Documentation/networking/filter.txt
+F:	include/linux/filter.h
+F:	include/trace/events/xdp.h
+F:	include/uapi/linux/filter.h
+F:	net/core/filter.c
+F:	kernel/bpf/
+F:	include/net/netns/xdp.h
+F:	include/net/page_pool.h
+F:	include/net/*xdp*
+F:	include/net/*xsk*
+F:	include/uapi/linux/*xdp*
+F:	net/core/page_pool.c
+F:	net/core/sock_map.c
+F:	net/core/xdp.c
+F:	net/xdp/
+F:	samples/bpf/*xdp*
+F:	tools/testing/selftests/bpf/*xdp*
+F:	tools/testing/selftests/bpf/*/*xdp*
+
+BUS DRIVER
+M:	Lu Riwen <luriwen@kylinos.cn>
+M:	Xiong xin <xiongxin@kylinos.cn>
+S:	Supported
+F:	drivers/bus/
+F:	include/linux/can/
+F:	include/uapi/linux/can/
+F:	include/uapi/linux/can.h
+F:	drivers/net/can/
+F:	net/can/
+
+FILESYSTEM DRIVER
+M:	Liu Zhengyuan <liuzhengyuan@kylinos.cn>
+M:	Hu Song <husong@kylinos.cn>
+M:	Hu Hai <huhai@kylinos.cn>
+M:	Shida Zhang <zhangshida@kylinos.cn>
+R:	liubaolin <liubaolin@kylinos.cn>
+R:	pengyu <pengyu@kylinos.cn>
+R:	Jiangshan Yi <yijiangshan@kylinos.cn>
+R:	pengcan <pengcan@kylinos.cn>
+S:	Supported
+F:	net/ceph/
+F:	include/linux/ceph/
+F:	include/linux/crush/
+F:	Documentation/filesystems/ceph.txt
+F:	fs/
+F:	include/linux/configfs.h
+F:	include/linux/dax.h
+F:	include/trace/events/fs_dax.h
+F:	include/uapi/linux/fuse.h
+F:	include/uapi/linux/gfs2_ondisk.h
+
+CHAR and MISC DRIVERS
+M:	Liu Yun <liuyun01@kylinos.cn>
+M:	Xiong Xin <xiongxin@kylinos.cn>
+M:	Hu Hai <huhai@kylinos.cn>
+R:	Luo xueqin <luoxueqin@kylinos.cn>
+R:	Jiangshan Yi <yijiangshan@kylinos.cn>
+R:	i Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	drivers/char/
+F:	drivers/misc/
+F:	include/linux/miscdevice.h
+X:	drivers/char/virtio_console.c
+
+COMMON CLK FRAMEWORK
+M:	Xiong Xin <xiongxin@kylinos.cn>
+M:	Lu Riwen <luriwen@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+S:	Supported
+F:	Documentation/devicetree/bindings/clock/
+F:	drivers/clk/
+F:	include/linux/clk-pr*
+F:	include/linux/clk/
+F:	include/linux/of_clk.h
+
+COMPUTE EXPRESS LINK (CXL)
+M:	Xiong xin <xiongxin@kylinos.cn>
+M:	Lu Riwen <luriwen@kylinos.cn>
+S:	Supported
+F:	drivers/cxl/
+F:	include/uapi/linux/cxl_mem.h
+F:	Documentation/ABI/testing/sysfs-bus-cxl
+F:	Documentation/driver-api/cxl/memory-devices.rst
+
+CONTROL GROUP (CGROUP)
+M:	Xie Ming <xieming@kylinos.cn>
+M:	Sun Liming <sunliming@kylinos.cn>
+M:	Li Weishi <liweishi@kylinos.cn>
+S:	Supported
+F:	Documentation/cgroup*
+F:	include/linux/cgroup*
+F:	include/linux/cpuset.h
+F:	kernel/cgroup/
+F:	mm/memcontrol.c
+F:	mm/swap_cgroup.c
+
+CRYPTO API
+M:	Yang Zhao <yangzhao@kylinos.cn>
+M:	Wang Yucheng <wangyucheng@kylinos.cn>
+S:	Supported
+F:	Documentation/crypto/
+F:	Documentation/devicetree/bindings/crypto/
+F:	arch/*/crypto/
+F:	crypto/
+F:	drivers/crypto/
+F:	include/crypto/
+F:	include/linux/crypto*
+F:	lib/crypto/
+
+DEVICE MAPPER SUPPORT
+M:	Liu Zhengyuan <liuzhengyuan@kylinos.cn>
+M:	Liu Yun <liuyun01@kylinos.cn>
+R:	Genjian Zhang <zhanggenjian@kylinos.cn>
+S:	Supported
+F:	Documentation/device-mapper/
+F:	drivers/md/dm*
+F:	drivers/md/persistent-data/
+F:	include/linux/device-mapper.h
+F:	include/linux/dm-*.h
+F:	include/uapi/linux/dm-*.h
+
+FUTEX SUBSYSTEM
+M:	Liu Yun <liuyun01@kylinos.cn>
+M:	wangqi <wangqi@kylinos.cn>
+S:	Supported
+F:	Documentation/*futex*
+F:	include/asm-generic/futex.h
+F:	include/linux/futex.h
+F:	include/uapi/linux/futex.h
+F:	kernel/futex.c
+F:	tools/perf/bench/futex*
+F:	tools/testing/selftests/futex/
+
+GENERIC PHY FRAMEWORK
+M:	Xiao Linkui <xiaolinkui@kylinos.cn>
+M:	Chen Zhang <chenzhang@kylinos.cn>
+M:	Lu Yun <luyun@kylinos.cn>
+M:	Wei Rongguang <weirongguang@kylinos.cn>
+R:	Chenguang Zhao <zhaochenguang@kylinos.cn>
+S:	Supported
+F:	Documentation/devicetree/bindings/phy/
+F:	drivers/phy/
+F:	include/linux/phy/
+
+GPIO SUBSYSTEM
+M:	Xiong Xin <xiongxin@kylinos.cn>
+R:	Lu Riwen <luriwen@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+S:	Supported
+F:	Documentation/ABI/obsolete/sysfs-gpio
+F:	Documentation/ABI/testing/gpio-cdev
+F:	Documentation/admin-guide/gpio/
+F:	Documentation/devicetree/bindings/gpio/
+F:	Documentation/driver-api/gpio/
+F:	drivers/gpio/
+F:	include/asm-generic/gpio.h
+F:	include/linux/gpio.h
+F:	include/linux/gpio/
+F:	include/linux/of_gpio.h
+F:	include/uapi/linux/gpio.h
+F:	tools/gpio/
+
+HID CORE LAYER
+M:	Xiong Xin <xiongxin@kylinos.cn>
+S:	Supported
+F:	drivers/hid/
+F:	include/linux/hid*
+F:	include/uapi/linux/hid*
+
+HWMON SUBSYSTEM
+M:	Lu Riwen <luriwen@kylinos.cn>
+S:	Supported
+F:	drivers/hwmon/
+
+I2C SUBSYSTEM
+M:	Lu Riwen <luriwen@kylinos.cn>
+M:	Xiong Xin <xiongxin@kylinos.cn>
+R:	Lou xueqin <luoxueqin@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+S:	Supported
+F:	Documentation/devicetree/bindings/i2c/
+F:	Documentation/i2c/
+F:	drivers/i2c/
+F:	include/linux/i2c.h
+F:	include/linux/i2c-*.h
+F:	include/uapi/linux/i2c.h
+F:	include/uapi/linux/i2c-*.h
+
+INIT
+M:	Liu Yun <liuyun01@kylinos.cn>
+R:	Zhang xi <zhangxi@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+S:	Supported
+F:	init/
+
+INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN) DRIVERS
+M:	Wang Qi <wangqi@kylinos.cn>
+M:	Xiong Xin <xiongxin@kylinos.cn>
+R:	Lu Riwen <luriwen@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	Documentation/devicetree/bindings/input/
+F:	Documentation/devicetree/bindings/serio/
+F:	Documentation/input/
+F:	drivers/input/
+F:	include/linux/input.h
+F:	include/linux/input/
+F:	include/uapi/linux/input-event-codes.h
+F:	include/uapi/linux/input.h
+
+SECURITY SUBSYSTEM
+M:	Yang Zhao <yangzhao@kylinos.cn>
+S:	Supported
+F:	security/
+F:	include/linux/lsm_*
+F:	include/linux/security.h
+F:	include/linux/selinux*
+F:	Documentation/admin-guide/LSM/SELinux.rst
+
+INTERRUPT CONTROLLERS
+M:	Sun Liming <sunliming@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+R:	huangbing <huangbing@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	drivers/irqchip/
+F:	include/linux/irqchip/
+F:	include/linux/irqchip.h
+X:	drivers/irqchip/irq-gic*
+X:	include/linux/irqchip/arm-gic*
+
+IPMI SUBSYSTEM
+M:	Hu Hai <huhai@kylinos.cn>
+S:	Supported
+F:	drivers/char/ipmi/
+F:	include/linux/ipmi-fru.h
+F:	include/linux/ipmi.h
+F:	include/linux/ipmi_smi.h
+F:	include/uapi/linux/ipmi.h
+F:	include/uapi/linux/ipmi_bmc.h
+F:	include/uapi/linux/ipmi_msgdefs.h
+
+KERNEL VIRTUAL MACHINE
+M:	Xie Ming <xieming@kylinos.cn>
+M:	Sun Liming <sunliming@kylinos.cn>
+R:	Li Weishi <liweishi@kylinos.cn>
+R:	Xia Jidong <xiajidong@kylinos.cn>
+R:	Liu Cong <liucong2@kylinos.cn>
+R:	Yu Jun <yujun@kylinos.cn>
+R:	Zhang Hao <zhanghao1@kylinos.cn>
+R:	Tang Longjun <tanglongjun@kylinos.cn>
+R:	Lei Xiang <leixiang@kylinos.cn>
+S:	Supported
+F:	arch/x86/include/asm/svm.h
+F:	arch/x86/include/uapi/asm/svm.h
+F:	arch/x86/kvm/svm.c
+F:	arch/arm64/include/uapi/asm/kvm*
+F:	arch/arm64/include/asm/kvm*
+F:	arch/arm64/kvm/
+F:	virt/kvm/arm/
+F:	include/kvm/arm_*
+F:	arch/x86/kvm/
+F:	arch/x86/include/uapi/asm/kvm*
+F:	arch/x86/include/uapi/asm/vmx.h
+F:	arch/x86/include/asm/kvm*
+F:	arch/x86/include/asm/pvclock-abi.h
+F:	arch/x86/include/asm/vmx*.h
+F:	arch/x86/kernel/kvm.c
+F:	arch/x86/kernel/kvmclock.c
+F:	Documentation/virt/kvm/
+F:	include/trace/events/kvm.h
+F:	include/uapi/asm-generic/kvm*
+F:	include/uapi/linux/kvm*
+F:	include/asm-generic/kvm*
+F:	include/linux/kvm*
+F:	include/kvm/iodev.h
+F:	virt/kvm/
+F:	tools/kvm/
+F:	tools/testing/selftests/kvm/
+F:	drivers/ptp/ptp_kvm.c
+
+KEXEC/KDUMP
+M:	Liu Yun <liuyun01@kylinos.cn>
+M:	Liu Zhengyuan <liuzhengyuan@kylinos.cn>
+M:	Hu Hai <huhai@kylinos.cn>
+R:	Jiang Xiujie <jiangxiujie@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+S:	Supported
+F:	Documentation/admin-guide/kdump/
+F:	include/linux/crash_core.h
+F:	include/linux/crash_dump.h
+F:	include/uapi/linux/vmcore.h
+F:	include/linux/kexec.h
+F:	include/uapi/linux/kexec.h
+F:	fs/proc/vmcore.c
+F:	kernel/crash_*.c
+F:	kernel/kexec*
+F:	arch/x86/kernel/machine_kexec_*.c
+F:	arch/x86/kernel/crash*.c
+F:	arch/x86/kernel/kexec-bzimage64.c
+
+LIVE PATCHING / KPATCH
+M:	Jiang Xiujie <jiangxiujie@kylinos.cn>
+M:	Jiang Haoran <jianghaoran@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+S:	Supported
+F:	Documentation/ABI/testing/sysfs-kernel-livepatch
+F:	Documentation/livepatch/
+F:	arch/powerpc/include/asm/livepatch.h
+F:	arch/x86/include/asm/livepatch.h
+F:	arch/x86/kernel/livepatch.c
+F:	include/linux/livepatch.h
+F:	kernel/livepatch/
+F:	lib/livepatch/
+F:	samples/livepatch/
+F:	tools/objtool/
+F:	tools/testing/selftests/livepatch/
+
+MEDIA INPUT INFRASTRUCTURE (V4L/DVB)
+M:	Wang Yongjun <wangyongjun@kylinos.cn>
+M:	Zhou Lei <zhoulei@kylinos.cn>
+M:	Liu Yihu <liuyihu@kylinos.cn>
+M:	Li Zhenneng <lizhenneng@kylinos.cn>
+R:	lihongtao <lihongtao@kylinos.cn>
+S:	Supported
+F:	drivers/media/
+F:	include/media/
+F:	include/uapi/linux/dvb/
+F:	include/uapi/linux/videodev2.h
+F:	include/uapi/linux/media.h
+F:	include/uapi/linux/v4l2-*
+F:	include/uapi/linux/ivtv*
+
+MEMORY MANAGEMENT
+M:	Wang Qi <wangqi@kylinos.cn>
+M:	Huang Jinhui <huangjinhui@kylinos.cn>
+M:	Sun Ke <sunke@kylinos.cn>
+R:	Enze Li <lienze@kylinos.cn>
+R:	liyouhong <liyouhong@kylinos.cn>
+R:	pengcan <pengcan@kylinos.cn>
+R:	liujinlong <liujinlong@kylinos.cn>
+R:	huangbing <huangbing@kylinos.cn>
+R:	Jiang Xiujie <jiangxiujie@kylinos.cn>
+R:	Jiang Yunshui <jiangyunshui@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	arch/arm64/mm/
+F:	arch/powerpc/mm/
+F:	arch/s390/mm/
+F:	arch/x86/mm/
+F:	include/linux/compaction.h
+F:	include/linux/gfp.h
+F:	include/linux/huge*.h
+F:	include/linux/kasan.h
+F:	include/linux/khugepaged.h
+F:	include/linux/kmemleak.h
+F:	include/linux/ksm.h
+F:	include/linux/mem*.h
+F:	include/linux/migrate.h
+F:	include/linux/mm*.h
+F:	include/linux/node*.h
+F:	include/linux/numa.h
+F:	include/linux/oom.h
+F:	include/linux/page*.h
+F:	include/linux/pfn*.h
+F:	include/linux/rmap.h
+F:	include/linux/shm*.h
+F:	include/linux/shrinker.h
+F:	include/linux/slab_def.h
+F:	include/linux/slab.h
+F:	include/linux/slub_def.h
+F:	include/linux/swap*.h
+F:	include/linux/vmalloc.h
+F:	include/linux/vmpressure.h
+F:	include/linux/vmstat.h
+F:	mm/
+
+MMC LAYER
+M:	Huang Lei <huanglei@kylinos.cn>
+R:	Chen changcheng <chenchangcheng@kylinos.cn>
+S:	Supported
+F:	Documentation/mmc/
+F:	include/linux/mmc/
+F:	drivers/mmc/
+
+NETFILTER
+M:	Xiao Linkui <xiaolinkui@kylinos.cn>
+M:	Lu Yun <luyun@kylinos.cn>
+M:	Liu Yun <liuyun01@kylinos.cn>
+R:	Chenguang Zhao <zhaochenguang@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+R:	Chen Yuan <chenyuan@kylinos.cn>
+S:	Supported
+F:	net/netfilter/
+F:	net/*/netfilter*
+F:	include/linux/netfilter*
+F:	include/net/netfilter/
+F:	include/uapi/linux/netfilter*
+F:	include/net/netns/conntrack.h
+F:	include/net/netns/netfilter.h
+F:	include/net/netns/nftables.h
+F:	include/net/netns/x_tables.h
+
+NVM EXPRESS DRIVER (nvme)
+M:	Hu Hai <huhai@kylinos.cn>
+M:	Liu Yun <liuyun01@kylinos.cn>
+R:	Jiang Haoran <jianghaoran@kylinos.cn>
+R:	liubaolin <liubaolin@kylinos.cn>
+R:	wangxuewen <wangxuewen@kylinos.cn>
+R:	Wang Yufeng <wangyufeng@kylinos.cn>
+R:	Tan Zheng <tanzheng@kylinos.cn>
+S:	Supported
+F:	drivers/nvme/
+F:	include/linux/nvme.h
+F:	include/linux/nvme-rdma*.h
+F:	include/uapi/linux/nvme_ioctl.h
+F:	drivers/nvme/host/tcp.c
+F:	drivers/nvme/target/tcp.c
+F:	include/linux/nvme-tcp*.h
+
+PCI SUBSYSTEM
+M:	Sun Liming <sunliming@kylinos.cn>
+M:	Wang Yongjun <wangyongjun@kylinos.cn>
+M:	Xiao Linkui <xiaolinkui@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+R:	liubaolin <liubaolin@kylinos.cn>
+R:	wangxuewen <wangxuewen@kylinos.cn>
+R:	wudandan <wudandan@kylinos.cn>
+R:	Tan Zheng <tanzheng@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+R:	wei yufeng <weiyufeng@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	drivers/pci/
+
+PERFORMANCE EVENTS SUBSYSTEM
+M:	Liu Yun <liuyun01@kylinos.cn>
+M:	Zhang Duo <zhangduo@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+S:	Supported
+F:	kernel/events/
+F:	include/linux/perf_event.h
+F:	include/uapi/linux/perf_event.h
+F:	arch/*/kernel/perf_event*.c
+F:	arch/*/kernel/*/perf_event*.c
+F:	arch/*/kernel/*/*/perf_event*.c
+F:	arch/*/include/asm/perf_event.h
+F:	arch/*/kernel/perf_callchain.c
+F:	tools/perf/
+F:	tools/lib/
+
+POWER DRIVERS (Batteries, power supplies, etc.)
+M:	Wang Qi <wangqi@kylinos.cn>
+M:	Lu Riwen <luriwen@kylinos.cn>
+R:	Gong Linkai <lgonglinkai@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+S:	Supported
+F:	drivers/power/
+F:	drivers/firmware/psci*.c
+F:	include/linux/psci.h
+F:	include/uapi/linux/psci.h
+
+RAS INFRASTRUCTURE
+M:	Liu Zhengyuan <liuzhengyuan@kylinos.cn>
+M:	Hu Hai <huhai@kylinos.cn>
+R:	Tan Zheng <tanzheng@kylinos.cn>
+S:	Provided
+F:	drivers/ras
+
+SCHEDULER
+M:	Sun Ke <sunke@kylinos.cn>
+M:	Huang Bing <huangbing@kylinos.cn>
+R:	mengfanhui <mengfanhui@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+R:	Jiang Xiujie <jiangxiujie@kylinos.cn>
+R:	liwanwu <liwanwu@kylinos.cn>
+S:	Supported
+F:	kernel/sched/
+F:	include/linux/sched/
+F:	include/linux/sched.h
+F:	include/uapi/linux/sched.h
+F:	include/linux/wait.h
+
+SOFTWARE RAID (Multiple Disks, MD) SUPPORT
+M:	Liu Zhengyuan <liuzhengyuan@kylinos.cn>
+M:	Liu Yun <liuyun01@kylinos.cn>
+M:	Zhang Genjian <zhanggenjian@kylinos.cn>
+R:	liubaolin <liubaolin@kylinos.cn>
+S:	Supported
+F:	drivers/md/md*
+F:	drivers/md/raid*
+F:	include/linux/raid/
+F:	include/uapi/linux/raid/
+
+REAL TIME CLOCK (RTC) SUBSYSTEM
+M:	Lu Riwen <luriwen@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+S:	Supported
+F:	Documentation/rtc.*
+F:	Documentation/admin-guide/rtc.*
+F:	drivers/rtc/
+F:	include/linux/platform_data/rtc-*
+F:	include/linux/rtc.h
+F:	include/linux/rtc/
+F:	include/uapi/linux/rtc.h
+F:	tools/testing/selftests/rtc/
+
+TEE SUBSYSTEM
+M:	Yang Zhao <yangzhao@kylinos.cn>
+S:	Provided
+F:	drivers/tee
+
+TRUSTED PLATFORM MODULE (TPM)
+M:	Yang Zhao <yangzhao@kylinos.cn>
+S:	Supported
+F:	drivers/char/tpm/
+F:	include/linux/tpm.h
+
+TTY LAYER
+M:	Xiong Xin <xiongxin@kylinos.cn>
+R:	oushixiong <oushixiong@kylinos.cn>
+R:	wudandan <wudandan@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	drivers/tty/
+F:	drivers/tty/serial/serial_core.c
+F:	include/linux/serial.h
+F:	include/linux/serial_core.h
+F:	include/linux/tty.h
+F:	include/uapi/linux/serial.h
+F:	include/uapi/linux/serial_core.h
+F:	include/uapi/linux/tty.h
+
+UNIVERSAL EXTENSIBLE FIRMWARE INTERFACE (UEFI/EFI)
+M:	Wang Qi <wangqi@kylinos.cn>
+S:	Supported
+F:	arch/x86/kernel/efi*
+F:	include/linux/efi.h
+
+USB SUBSYSTEM
+M:	Xiong Xin <xiongxin@kylinos.cn>
+M:	Xie Hongyu <xiehongyu1@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+R:	Ai Chao <aichao@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+R:	limiao <limiao@kylinos.cn>
+S:	Supported
+F:	drivers/usb/
+
+VFIO DRIVER
+M:	Xie Ming <xieming@kylinos.cn>
+S:	Supported
+F:	Documentation/vfio.txt
+F:	drivers/vfio/
+F:	include/linux/vfio.h
+F:	include/uapi/linux/vfio.h
+F:	Documentation/vfio-mediated-device.txt
+F:	drivers/vfio/mdev/
+F:	include/linux/mdev.h
+F:	samples/vfio-mdev/
+
+VIDEO DRIVERS
+M:	Wang Yongjun <wangyongjun@kylinos.cn>
+M:	Zhou Lei <zhoulei@kylinos.cn>
+M:	Liu Yihu <liuyihu@kylinos.cn>
+M:	Li Zhenneng <lizhenneng@kylinos.cn>
+R:	Yang Deyi <yangdeyi@kylinos.cn>
+R:	pengfuyuan <pengfuyuan@kylinos.cn >
+R:	lihongtao <lihongtao@kylinos.cn>
+R:	oushixiong <oushixiong@kylinos.cn>
+R:	xurui <xurui@kylinos.cn>
+R:	sunzhigang <sunzhigang1@kylinos.cn>
+R:	yangcanfen <yangcanfen@kylinos.cn>
+S:	Supported
+F:	drivers/gpu/
+F:	drivers/video/
+F:	kylin/gpu/
+
+VIRTIO AND VHOST VSOCK DRIVER
+M:	Jiang Feng <jiangfeng@kylinos.cn>
+M:	Xie Ming <xieming@kylinos.cn>
+R:	Liu Cong <liucong2@kylinos.cn>
+R:	Yu Jun <yujun@kylinos.cn>
+R:	Wang Yufeng <wangyufeng@kylinos.cn>
+R:	He Minhong <heminhong@kylinos.cn>
+R:	Zhou Zongmin <zhouzongmin@kylinos.cn>
+R:	Tang Longjun <tanglongjun@kylinos.cn>
+R:	Lei Xiang <leixiang@kylinos.cn>
+S:	Supported
+F:	include/linux/virtio_vsock.h
+F:	include/net/af_vsock.h
+F:	include/net/vsock_addr.h
+F:	include/uapi/linux/virtio_vsock.h
+F:	include/uapi/linux/vsockmon.h
+F:	net/vmw_vsock/
+F:	drivers/net/vsockmon.c
+F:	drivers/vhost/vsock.c
+F:	drivers/vhost/vsock.h
+X:	net/vmw_vsock/hyperv*
+F:	drivers/char/virtio_console.c
+F:	include/linux/virtio_console.h
+F:	include/uapi/linux/virtio_console.h
+F:	Documentation/devicetree/bindings/virtio/
+F:	drivers/virtio/
+F:	tools/virtio/
+F:	drivers/net/virtio_net.c
+F:	drivers/vdpa/
+F:	drivers/block/virtio_blk.c
+F:	include/linux/virtio*.h
+F:	include/linux/vdpa.h
+F:	include/uapi/linux/virtio_*.h
+F:	drivers/crypto/virtio/
+F:	mm/balloon_compaction.c
+F:	drivers/crypto/virtio/
+F:	include/uapi/linux/virtio_crypto.h
+F:	drivers/s390/virtio/
+F:	drivers/gpu/drm/virtio/
+F:	include/uapi/linux/virtio_gpu.h
+F:	drivers/vhost/
+F:	include/uapi/linux/vhost.h
+F:	drivers/virtio/virtio_input.c
+F:	include/uapi/linux/virtio_input.h
+F:	virt/lib/
+
+WATCHDOG
+M:	Xiong Xin <xiongxin@kylinos.cn>
+S:	Supported
+F:	Documentation/watchdog/
+F:	drivers/watchdog/
+F:	drivers/acpi/acpi_watchdog.c
+F:	include/linux/watchdog.h
+F:	include/uapi/linux/watchdog.h
+
+WIRELESS DRIVERS AND STACK
+M:	Xiao Linkui <xiaolinkui@kylinos.cn>
+R:	Wei Rongguang <weirongguang@kylinos.cn>
+R:	Chenguang Zhao <zhaochenguang@kylinos.cn>
+S:	Supported
+F:	drivers/net/wireless/
+F:	net/mac80211/
+F:	net/wireless/
+F:	net/rfkill/
+F:	include/linux/*80211*
+F:	include/net/*80211*
+F:	include/net/iw*
+F:	include/net/regulatory.h
+F:	include/uapi/linux/nl80211.h
+F:	include/uapi/linux/wireless.h
+F:	drivers/net/ieee802154/fakelb.c
+F:	include/linux/*802154*
+F:	include/net/*802154*
+F:	net/ieee802154/
+F:	net/mac802154/
+
+X86 ARCHITECTURE
+M:	Liu Yun <liuyun01@kylinos.cn>
+M:	Zhang Duo <zhangduo@kylinos.cn>
+S:	Supported
+F:	arch/x86/
+F:	tools/arch/x86/
+F:	tools/power/cpupower/
+F:	tools/power/x86/
+X:	arch/x86/hyperv/hv_init.c
+X:	arch/x86/include/asm/kvm*
+X:	arch/x86/include/asm/mshyperv.h
+X:	arch/x86/include/asm/pvclock-abi.h
+X:	arch/x86/include/asm/svm.h
+X:	arch/x86/include/asm/vmx*.h
+X:	arch/x86/include/uapi/asm/kvm*
+X:	arch/x86/include/uapi/asm/svm.h
+X:	arch/x86/include/uapi/asm/vmx.h
+X:	arch/x86/kernel/cpu/mshyperv.c
+X:	arch/x86/kernel/kvm.c
+X:	arch/x86/kernel/kvmclock.c
+X:	arch/x86/kvm/
+X:	arch/x86/kvm/svm.c
+X:	arch/x86/net/
+
+SW64 ARCHITECTURE
+M:	Chen Zhang <chenzhang@kylinos.cn>
+M:	Huang Wei <huangwei@kylinos.cn>
+R:	Liu Yunchen <liuyunchen@kylinos.cn>
+R:	shitao <shitao@kylinos.cn>
+S:	Supported
+F:	arch/sw_64/
+
+LOONGSON ARCHITECTURE
+M:	Jiang Haoran <jianghaoran@kylinos.cn>
+R:	Hu Song <husong@kylinos.cn>
+R:	Jiang Xiujie <jiangxiujie@kylinos.cn>
+R:	Enze Li <lienze@kylinos.cn>
+R:	Zhang xi <zhangxi@kylinos.cn>
+R:	liubaolin <liubaolin@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+R:	wangxuewen <wangxuewen@kylinos.cn>
+R:	wudandan <wudandan@kylinos.cn>
+R:	mengfanhui <mengfanhui@kylinos.cn>
+R:	lifangxu <lifangxu@kylinos.cn>
+R:	tianyu <tianyu@kylinos.cn>
+R:	Yongzhen Zhang <zhangyongzhen@kylinos.cn>
+S:	Supported
+F:	arch/loongarch/
+
+MIPS ARCHITECTURE
+M:	Jiang Haoran <jianghaoran@kylinos.cn>
+M:	Huang Wei <huangwei@kylinos.cn>
+R:	Hu Song <husong@kylinos.cn>
+R:	Jiang Xiujie <jiangxiujie@kylinos.cn>
+R:	Chen Zhang <chenzhang@kylinos.cn>
+R:	liubaolin <liubaolin@kylinos.cn>
+R:	wangxuewen <wangxuewen@kylinos.cn>
+R:	Yongzhen Zhang <zhangyongzhen@kylinos.cn>
+S:	Supported
+F:	arch/mips/
+
+XEN
+M:	Xie Ming <xieming@kylinos.cn>
+M:	Sun Liming <sunliming@kylinos.cn>
+M:	Li Weishi <liweishi@kylinos.cn>
+S:	Supported
+F:	drivers/block/xen-blkfront.c
+F:	drivers/input/misc/xen-kbdfront.c
+F:	drivers/net/xen-netfront.c
+F:	drivers/tty/hvc/hvc_xen.c
+F:	drivers/watchdog/xen_wdt.c
+F:	drivers/xen/
+F:	include/trace/events/xen.h
+F:	include/uapi/xen/
+F:	include/xen/
+F:	arch/x86/include/asm/xen/
+F:	arch/x86/pci/xen.c
+F:	arch/x86/xen/
+
+XFS FILESYSTEM
+M:	Zhang Shida <zhangshida@kylinos.cn>
+M:	Hu Hai <huhai@kylinos.cn>
+S:	Supported
+F:	Documentation/filesystems/xfs.txt
+F:	fs/xfs/
+
+BACKPORT TOOLS
+M:	Liu Yun <liuyun01@kylinos.cn>
+M:	Xie Hongyu <xiehongyu1@kylinos.cn>
+R:	George Guo <guodongtai@kylinos.cn>
+S:	Supported
+F:	scripts/stable-tools/
+F:	scripts/sync-stable
+F:	scripts/backport-tools/
+F:	.gitmessage
+F:	MAINTAINERS-DIR/KYLIN-MAINTAINERS
+
+KABI SUBSYSTEM
+M:	Sun Ke <sunke@kylinos.cn>
+M:	Liu Yun <liuyun01@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+R:	liujinlong <liujinlong@Kylinos.cn>
+S:	Supported
+F:	rpmbuild/SOURCES/Module.kabi_*
+F:	kabi/
+
+DMA SUBSYSTEM
+M:	wudandan <wudandan@kylinos.cn>
+R:	wangqi <wangqi@kylinos.cn>
+F:	drivers/dma
+F:	arch/arm64/mm/dma-mapping.c
+F:	arch/loongarch/la64/dma.c
+F:	arch/mips/bmips/dma.c
+F:	arch/arm/kernel/dma.c
