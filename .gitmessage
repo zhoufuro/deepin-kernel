@@ -1,0 +1,78 @@
+KYLIN: 
+#[KYLIN/UBUNTU/GITHUB/VENDOR]: [module]/[submodule]: a short describe to this patch
+
+# Mainline: KYLIN-only/upstream-commit-id
+Mainline: KYLIN-only
+#
+# From: kernel upstream tag, like "v5.13-rc1"
+# Note, upstream commit must have 'From' label, otherwise hidden it.
+# Use command...
+#  $git describe --contains $upstream-commit-id | awk -F'~' '{print $1}' | awk -F'^' '{print $1}'
+#
+# Severity: Low/Moderate/Important/Critical
+Severity: Low
+#
+# CVE: CVE-id or hidden.
+#
+# KABI: Checked
+# Use 'script/check-abi.sh' check them, every patchset need do that.
+
+# Bug or task id, they are from pm.kylin.com
+# Bug/Task: #1234
+Task: #ID
+
+# You should include at least one of the flollwing:
+#  * Why we should apply this patch
+#  * What problem does this patch resolved
+#  * How could we reproduce this bug or how to test
+
+# Conflicts:
+#  * conflict description when backport from mainline or LTS
+
+# K2CI-Arch: None/{Arm64|Amd64|Loongarch|Sunway}/All
+K2CI-Arch: All
+#
+# K2CI-Case: Build-Only/{Net|FS|Unixbench|FC-SAN|IP-SAN|Reboot}
+# If K2CI-Arch is 'None', this label here will become meaningless.
+# The default of K2CI-Case is Build-only, and hidden it.
+# K2CI-Case: Build-Only
+#
+# Fixes: 12-char SHA ("fixed-patch title")
+#
+# If patch need cherry-pick to stable tree, please add:
+# Cc: kernel-stable-team #SP1+
+#
+# Explain:
+#  * SP1+ = SP1 + SP2 + SP3
+#  * SP2+ = SP2 + SP3
+#  * SP3+ = SP3
+#
+# Signed-off-by: Your name <your-email-address@kylinos.cn>
+#
+#    +---------------------------------------------------------------------------------------+
+#    |                                                                                       |
+#    |  vhost/scsi: add weight support                                                       |
+#    |                                                                                       |
+#    |  Mainline: c1ea02f15ab5efb3e93fc3144d895410bf79fcf2                                   |
+#    |  From: v5.2-rc4                                                                       |
+#    |  Severity: Important                                                                  |
+#    |  CVE: CVE-2019-3900                                                                   |
+#    |                                                                                       |
+#    |  bug: 12345                                                                           |
+#    |                                                                                       |
+#    |  This patch will check the weight and exit the loop if we exceeds the                 |
+#    |  weight. This is useful for preventing scsi kthread from hogging cpu                  |
+#    |  which is guest triggerable. This addresses CVE-2019-3900.                            |
+#    |                                                                                       |
+#    |  Cc: Paolo Bonzini <pbonzini@redhat.com>                                              |
+#    |  Cc: Stefan Hajnoczi <stefanha@redhat.com>                                            |
+#    |  Fixes: 057cbf49a1f0 ("tcm_vhost: Initial merge for vhost level target fabric driver")|
+#    |  Signed-off-by: Jason Wang <jasowang@redhat.com>                                      |
+#    |  Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>                                   |
+#    |  Signed-off-by: Michael S. Tsirkin <mst@redhat.com>                                   |
+#    |  Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>                                   |
+#    |                                                                                       |
+#    |  Cc: kernel-stable-team #SP1+                                                         |
+#    |  Signed-off-by: Zhengyuan Liu <liuzhengyuan@kylinos.cn>                            |
+#    |                                                                                       |
+#    +---------------------------------------------------------------------------------------+
