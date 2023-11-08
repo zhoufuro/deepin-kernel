@@ -1,0 +1,88 @@
+#!/bin/bash
+
+. $(dirname $0)/init-functions
+
+BRANCH_COMMIT=HEAD
+
+function usage()
+{
+	echo -e "`basename $0` [OPTION]... upstream-commit-id"
+	echo
+	echo -e "  -h, --help\t\t\tshow this help info"
+	echo -e "  -q, --quiet\t\t\tdo not print tips"
+	echo -e "  -b, --branch\t\t\ttest commit in [branch]"
+	echo
+}
+
+function commit-in-tree()
+{
+	fullhash=$(git rev-parse $1)
+	# This might happen if someone pointed to a commit that doesn't exist in our
+	# tree.
+	if [ "$?" -gt "0" ]; then
+		return 0
+	fi
+
+	# Hope for the best, same commit is/isn't in the current branch
+	if git merge-base --is-ancestor $fullhash $BRANCH_COMMIT; then
+		return 1
+	fi
+
+	# Grab the subject, since commit sha1 is different between branches we
+	# have to look it up based on subject.
+	subj=$(git log -1 --pretty="%s" $1)
+	if [ $? -gt 0 ]; then
+		return 0
+	fi
+
+	STABLE_MAJ_VER=$(git --no-pager blame $BRANCH_COMMIT -s -L 2,3 $SOURCE_ROOT/Makefile | \
+			 grep VERSION | head -n1 | awk {'print $5'})
+	STABLE_MIN_VER=$(git --no-pager blame $BRANCH_COMMIT -s -L 2,3 $SOURCE_ROOT/Makefile | \
+			 grep PATCHLEVEL | head -n1 | awk {'print $5'})
+
+	# Try and find if there's a commit with given subject the hard way
+	for i in $(git log --pretty="%H" -F --grep "$subj" v$STABLE_MAJ_VER.$STABLE_MIN_VER..$BRANCH_COMMIT); do
+		cursubj=$(git log -1 --format="%s" $i)
+		if [ "$cursubj" = "$subj" ]; then
+			return 1
+		fi
+	done
+	return 0
+}
+
+ARGS=`getopt -o hqb: -a --long help,quiet,branch: -- "$@"`
+[ $? != 0 ] && echo "Terminating..." && usage && exit -1
+
+eval set -- "${ARGS}"
+
+while true
+do
+	case $1 in
+		-h|--help)
+			usage
+			exit 1;;
+		-b|--branch)
+			BRANCH_COMMIT=$2
+			shift 2;;
+		-q|--quiet)
+			QUIET_TIPS=true
+			shift;;
+		--)
+			shift
+			break;;
+	esac
+done
+
+# check args
+[ $# -lt 1 ] && usage && exit -1
+
+# check
+commit-in-tree $1
+
+if [[ $? == 1 ]]; then
+	[ x"$QUIET_TIPS" != x"true" ] && echo -e "\033[32mFound.\033[0m"
+	exit 0
+else
+	[ x"$QUIET_TIPS" != x"true" ] && echo -e "\033[34mNot Found.\033[0m"
+	exit 1
+fi

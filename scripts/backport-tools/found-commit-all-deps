@@ -1,0 +1,130 @@
+#!/bin/bash
+
+. $(dirname $0)/init-functions
+
+max_level=5
+
+function usage()
+{
+	echo -e "Usage: $(basename $0) [OPTION] <commit sha1>";
+	echo -e "       -f | --force\tForce check commit.";
+	echo
+	echo -e "./$(basename $0) [-f] upstream-commit-id"
+}
+
+ARGS=`getopt -o hf -a --long help,force -- "$@"`
+[ $? != 0 ] && echo "Terminating..." && usage && exit -1;
+
+eval set -- "${ARGS}"
+
+while true
+do
+	case $1 in
+		-h|--help)
+			usage
+			exit 0;;
+		-f|--force)
+			FORCE=true
+			shift 1;;
+		--)
+			shift
+			break;;
+	esac
+done
+
+# check args
+[ $# -lt 1 ] && usage && exit -1;
+
+# save commits
+commits="$@"
+
+# sanity check commitid
+if test -z "$(git log -1 --pretty=%s $1 2> /dev/null)"
+then
+	echo -e "${YELLOW}Skipping: Bad commit ID: $1${NC}"
+	exit -2;
+fi
+# test in tree ?
+$(dirname $0)/test-commit-in-tree -q $1
+if [ $? == 0 -a x"$FORCE" != x"true" ]; then
+	echo -e "${GREEN}In-tree, not need.${NC}" && exit 0;
+fi
+
+# Need git-deps
+command -v git-deps >/dev/null 2>&1 || echo "git-deps not found, run 'pip install git-deps' first"
+
+# args:
+#   $1 => commit
+#   $2 => level file
+function commit-deps () {
+	single_commit_deps=$(git deps $1...$1^)
+	echo $1 >> $_commitlisttmpfile
+
+	local inner_found=0
+	for l_commit in $single_commit_deps
+	do
+		$(dirname $0)/test-commit-in-tree -q $l_commit
+		if [[ $? != 0 ]]; then
+			tag=$(gdct $l_commit)
+			# for next level
+			echo "$1 : $l_commit : $tag" >> $_patchlisttmpfile
+			# print
+			echo "$1 : $l_commit : $tag"
+			inner_found=1
+		fi
+	done
+
+	[ $inner_found = 1 ] && return 1
+	return 0
+}
+
+# temp file for depend founding
+_patchlisttmpfile=$(mktemp)
+_commitlisttmpfile=$(mktemp)
+
+for ((level=0; level < max_level; level++))
+do
+	need_print_level="true"
+
+	for commit in $commits
+	do
+		# sanity check commitid
+		if test -z "$(git log -1 --pretty=%s $commit 2> /dev/null)"
+		then
+		        echo -e "${YELLOW}Skipping: Bad commit ID: ${commit}${NC}"
+		        continue
+		fi
+
+		grep -rn "$commit" $_commitlisttmpfile &> /dev/null
+		# Not search before
+		if [ $? = 1 ];
+		then
+			if [ x"$need_print_level" == x"true" ]; then
+				# Insert empty line
+				[ $level != 0 ] && echo
+				echo -e "${BLUE}Level $level:${NC}"
+				need_print_level="false";
+			fi
+			commit-deps $commit
+			[ $? = 0 ] && echo -e "$commit : ${GREEN}done.${NC}"
+		fi
+	done
+
+	# have next level?
+	if [ -f $_patchlisttmpfile ]; then
+		commits=$(cat $_patchlisttmpfile | awk -F':' '{print $2}' | uniq)
+		[ -z "$commits" ] && break
+	else
+		break;
+	fi
+
+	# clean
+	[ -f $_patchlisttmpfile ] && rm -f $_patchlisttmpfile
+done
+
+[ -f $_commitlisttmpfile ] && rm -f $_commitlisttmpfile
+
+if [ $level = $max_level ]; then
+	echo -e "${YELLOW}The dependency level exceeds $max_level, I suggest you to split the search,"
+	echo -e "or change the max_level value of this script.${NC}"
+fi

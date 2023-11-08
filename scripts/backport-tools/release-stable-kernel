@@ -1,0 +1,68 @@
+#!/bin/bash
+
+AUTHOR_EMAIL="Jackie Liu <liuyun01@kylinos.cn>"
+
+function generate_changelog()
+{
+	IDS=`git log $1...$2 --pretty="format: %H %s " | grep -v "Merge branch" | grep -v "KYLIN: changelog" | awk -F' ' '{print $1}'`
+
+	for id in $IDS
+	do
+		task_id=`git show --no-patch $id | grep "[Tt]ask: \?\#\?[0-9]\{4,\}\|[Bb]ug: \?\#\?[0-9]\{4,\}" | sed -e 's/ //g' | sed -e 's/#//g'`;
+		if [ x"$task_id" != x"" ]; then
+			task_id=" [`echo $task_id | sed 's/ /, /g'`]"
+		fi
+
+		cve_id=`git show --no-patch $id | grep "CVE: \?CVE-[0-9]\{4,\}-[0-9]\{1,\}" | sed -e 's/CVE://g'`
+		if [ x"${cve_id}" != x"" ]; then
+			cve_id=" {`echo ${cve_id} | sed 's/ /, /g'`}"
+		fi
+
+		git show --no-patch --pretty="$3${task_id,,}${cve_id^^}" $id >> $4
+		echo "" >> $4
+	done
+}
+
+VERSION=`sed -n 's/^VERSION = //p' Makefile`
+PATCHLEVEL=`sed -n 's/^PATCHLEVEL = //p' Makefile`
+SUBLEVEL=`sed -n 's/^SUBLEVEL = //p' Makefile`
+
+SPEC="rpmbuild/SPECS/kernel.spec"
+LAST_VERSION=$(git describe --tags --abbrev=0)
+BRANCH_NAME=$(sed -n 's/^%define branch_name //p' ${SPEC})
+MIDV=$(sed -n 's/^%define midv //p' ${SPEC})
+SUBV=$(sed -n 's/^%define subv //p' ${SPEC})
+let SUBV=$((SUBV))+1
+sed -i "s/\%define subv.*/\%define subv ${SUBV}/" ${SPEC}
+
+TEMPFILE="/tmp/.changelog"
+DATE_=`LC_ALL=en_US.UTF-8 date -d today +'%a %b %d %Y'`
+echo "* $DATE_ ${AUTHOR_EMAIL} - ${VERSION}.${PATCHLEVEL}.${SUBLEVEL}-${MIDV}.${SUBV}.${BRANCH_NAME}" > $TEMPFILE
+generate_changelog HEAD ${LAST_VERSION} "format:- %s (%aN)" $TEMPFILE
+echo "" >> $TEMPFILE
+sed -i 's/KYLIN: //Ig' $TEMPFILE
+sed -i 's/KYLIN://Ig' $TEMPFILE
+sed -i 's/KYLIN : //Ig' $TEMPFILE
+sed -i 's/KYLIN ://Ig' $TEMPFILE
+sed -i "/%changelog/r $TEMPFILE" ${SPEC}
+
+# Deb changelog
+echo "linux (${VERSION}.${PATCHLEVEL}.${SUBLEVEL}-${MIDV}.${SUBV}.${BRANCH_NAME}) stable; urgency=low" > $TEMPFILE
+echo "" >> $TEMPFILE
+generate_changelog HEAD ${LAST_VERSION} "format: * %s (%aN)" $TEMPFILE
+echo "" >> $TEMPFILE
+echo " -- ${AUTHOR_EMAIL}  `date -R`" >> $TEMPFILE
+echo "" >> $TEMPFILE
+cat debian.master/changelog >> $TEMPFILE
+\mv $TEMPFILE debian.master/changelog
+
+git commit -s -am  "Update kernel version to ${VERSION}.${PATCHLEVEL}.${SUBLEVEL}-${MIDV}.${SUBV}.${BRANCH_NAME}
+
+Mainline: KYLIN-only
+Severity: Low
+
+K2CI-Arch: None
+"
+
+git tag -m ${VERSION}.${PATCHLEVEL}.${SUBLEVEL}-${MIDV}.${SUBV}.${BRANCH_NAME} \
+		${VERSION}.${PATCHLEVEL}.${SUBLEVEL}-${MIDV}.${SUBV}.${BRANCH_NAME}

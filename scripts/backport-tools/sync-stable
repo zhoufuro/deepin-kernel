@@ -1,0 +1,187 @@
+#!/bin/bash
+
+. $(dirname $0)/init-functions
+
+ret=0
+
+SEVERITY_LEVEL="Low"
+K2CI_ARCH=""
+
+function do_exit()
+{
+	if [ $1 == 0 ];then
+		echo -e "${GREEN}Successed.${NC}"
+	else
+		echo -e "${BLUE}Something wrong, please check it.${NC}"
+	fi
+	exit $1
+}
+
+find_fixes () {
+	local commit_id="$1"
+
+	# verify commit_id
+	if ! git show "$commit_id" >& /dev/null ; then
+		echo "invalid git id or not in git tree"
+		exit 1
+	fi
+
+	# get the author date, which is what is displayed in git-log output
+	local commit_info
+	commit_info=$(git log --pretty="%h|%ad" -1 "$commit_id")
+	local short_hash
+	short_hash=$(echo "$commit_info" | awk -F "|"  ' { print $1 } ')
+	local commit_date
+	commit_date=$(echo "$commit_info" | awk -F "|"  ' { print $2 } ')
+
+	# use the date to do a git log --since=$commit_date and grep for Fixes?
+	# then look for short hash
+	git --no-pager log --oneline --pretty='%h ("%s")' \
+		--since="$commit_date" --grep="$short_hash" origin/master
+	return $?
+}
+
+function usage()
+{
+	echo -e "`basename $0` [OPTION]... upstream-comit-id"
+	echo ""
+	echo -e "  -h, --help\t\t\tshow this help info"
+	echo -e "  -i, --insert-head-only\treword commit body only, without re-edit patch"
+	echo -e "  -c, --cve\t\t\trequire cve id, insert to commit body"
+	echo -e "  -b, --bug\t\t\trequire bug id, insert to commit body"
+	echo -e "  -t, --task\t\t\trequire task id, insert to commit body"
+	echo -e "  -s, --stable\t\t\tlet us CC kernel-stable-team, need backport to stable tree"
+	echo -e "  -a, --k2ci-arch\t\tuse for K2CI-Arch, None/Amd64/Arm64/Loongarch..."
+	echo -e "             \t\t\t[default = All]"
+	echo -e "  -l, --level\t\t\tseverity level from [0-3], mean Low/Moderate/Important/Critical"
+	echo -e "             \t\t\t[default = 0]"
+	echo -e "  --fixes\t\t\tfind commit-id fixes"
+	echo -e "  --force\t\t\tignore commit in-tree, do force."
+	echo ""
+	echo "Examples:"
+	echo "  sync-stable -c CVE-2022-23456 -b 10243 -t 6009 -a \"Arm64|Amd64\" upstream-commit-id"
+}
+
+ARGS=`getopt -o hib:t:c:sa:l: -a --long help,insert-head-only,cve:,bug:,task:,stable,k2ci-arch,fixes,level:,force -- "$@"`
+[ $? != 0 ] && echo "Terminating..." && usage && exit -1
+
+eval set -- "${ARGS}"
+
+while true
+do
+	case $1 in
+		-h|--help)
+			usage
+			exit 0;;
+		-c|--cve)
+			CVEID="CVE: $2"
+			SEVERITY_LEVEL="Important"
+			NEED_CC_STABLE=true
+			shift 2;;
+		-i|--insert-head-only)
+			IHO=true;
+			shift 1;;
+		-b|--bug)
+			TASK_AND_BUG_ID_LIST="${TASK_AND_BUG_ID_LIST}bug: $2%n"
+			SEVERITY_LEVEL="Moderate"
+			shift 2;;
+		-t|--task)
+			TASK_AND_BUG_ID_LIST="${TASK_AND_BUG_ID_LIST}task: $2%n"
+			SEVERITY_LEVEL="Moderate"
+			shift 2;;
+		-s|--stable)
+			SEVERITY_LEVEL="Important"
+			NEED_CC_STABLE=true
+			shift 1;;
+		-a|--k2ci-arch)
+			K2CI_ARCH="K2CI-Arch: $2"
+			shift 2;;
+		--fixes)
+			FIND_FIXES=true
+			shift 1;;
+		-l|--level)
+			(( $2 == 0 )) && SEVERITY_LEVEL_FORCE="Low"
+			(( $2 == 1 )) && SEVERITY_LEVEL_FORCE="Moderate"
+			(( $2 == 2 )) && SEVERITY_LEVEL_FORCE="Important" && NEED_CC_STABLE=true
+			(( $2 >= 3 )) && SEVERITY_LEVEL_FORCE="Critical" && NEED_CC_STABLE=true
+			shift 2;;
+		--force)
+			FORCE=true
+			shift 1;;
+		--)
+			shift
+			break;;
+	esac
+done
+
+# check args
+[ $# -lt 1 ] && usage && exit -1
+
+# sanity check commitid
+if test -z "$(git log -1 --pretty=%s $1 2> /dev/null)"
+then
+        echo -e "${YELLOW}Skipping: Bad commit ID: $1${NC}"
+	do_exit -2;
+fi
+
+# test in tree ?
+$(dirname $0)/test-commit-in-tree -q $1
+if [ $? == 0 -a x"$IHO" != x"true" -a x"$FORCE" != x"true" ]; then
+	echo -e "${GREEN}backported before, not need.${NC}"
+	exit 0
+fi
+
+# Commit from stable tree ?
+mainline_commit=$(git log -1 --format="%b" $1 \
+            | grep -iE 'upstream commit [[:xdigit:]]{40}|commit[[:space:]]+[[:xdigit:]]{40}[[:space:]]+upstream\.?' \
+            | grep -oE '[[:xdigit:]]{40}')
+
+# Not found upstream commit, use $1 as upstream commit
+[ -z $mainline_commit ] && mainline_commit=$(git rev-parse $1)
+
+# Now get the mainline commit
+tag=$(gdct $mainline_commit)
+if [ -z "$tag" ];then
+	echo -e "${RED}Not found tag, fallback to 'git describe'.${NC}"
+	ret=-2
+	tag=$(git describe $mainline_commit)
+fi
+
+# Insert head only?
+if [ -z "$IHO" ]; then
+	git cherry-pick $1
+	# Cherry-pick failed, exit.
+	[ $? != 0 ] && do_exit -1
+fi
+
+# Set commit-id
+COMMIT_ID=$(git rev-parse $1)
+
+# Force reset author
+AUTHOR=$(git log --pretty="%an <%ae>" -1 $COMMIT_ID)
+
+# Force set SEVERITY_LEVEL
+[ ! -z $SEVERITY_LEVEL_FORCE ] && SEVERITY_LEVEL=$SEVERITY_LEVEL_FORCE
+
+# Need cc stable-tree?
+[ ! -z $NEED_CC_STABLE ] && CC_STABLE="%nCc: kernel-stable-team #SP0+"
+
+AUTHOR_DATE=$(git log -1 $COMMIT_ID --pretty="%ad")
+
+msg=$(git log -1 --format="%s%n\
+%nMainline: $mainline_commit%n\
+From: $tag%n\
+Severity: ${SEVERITY_LEVEL}%n\
+${CVEID}%n\
+%n${TASK_AND_BUG_ID_LIST}%n\
+%n%b%n\
+(backported from commit ${COMMIT_ID})%n\
+%n${K2CI_ARCH}\
+${CC_STABLE}" ${COMMIT_ID})
+git commit -s --amend -m "$msg" --author="$AUTHOR" --date="$AUTHOR_DATE"
+
+# need find fixes?
+[ ! -z $FIND_FIXES ] && find_fixes $mainline_commit
+
+# exit
+do_exit $ret

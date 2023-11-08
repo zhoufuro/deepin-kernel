@@ -1,0 +1,38 @@
+#!/bin/bash
+
+. $(dirname $0)/init-functions
+
+function usage()
+{
+	echo -e "Usage: `basename $0` upstream-comit-id"
+}
+
+[ $# -lt 1 ] && usage && exit -1
+
+# LTS 4.4 is gone, fixup to 4.9
+if [ "$STABLE_MAJ_VER.$STABLE_MIN_VER" = "4.4" ]; then
+	STABLE_MIN_VER="9"
+fi
+
+latest_branch_tag=$(git tag --list "v$STABLE_MAJ_VER.$STABLE_MIN_VER.*" --sort="-taggerdate" | head -n 1)
+
+# Grab the subject, since commit sha1 is different between branches we
+# have to look it up based on subject.
+subj=$(git log -1 --pretty="%s" $1)
+if [ $? -gt 0 ]; then
+        exit 0
+fi
+
+# Try and find if there's a commit with given subject the hard way
+for i in $(git log --pretty="%H" -F --grep "$subj" v$STABLE_MAJ_VER.$STABLE_MIN_VER..$latest_branch_tag);
+do
+	cursubj=$(git log -1 --format="%s" $i)
+	if [ "$cursubj" = "$subj" ]; then
+		tags=$(gdct $i)
+		echo -e "$tags -> $i"
+		echo -e "${GREEN}Successed.${NC}"
+		exit 0;
+	fi
+done
+
+echo -e "${YELLOW}Not found${NC}"

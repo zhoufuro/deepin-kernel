@@ -1,0 +1,49 @@
+RED='\033[31m'
+YELLOW='\033[33m'
+GREEN='\033[32m'
+BLUE='\033[34m'
+NC='\033[0m'
+
+SOURCE_ROOT=$(git rev-parse --show-toplevel)
+STABLE_MAJ_VER=$(grep VERSION $SOURCE_ROOT/Makefile | head -n1 | awk {'print $3'})
+STABLE_MIN_VER=$(grep PATCHLEVEL $SOURCE_ROOT/Makefile | head -n1 | awk {'print $3'})
+STABLE_BRANCH_ID=$(git log v${STABLE_MAJ_VER}.${STABLE_MIN_VER} --oneline -1 | awk -F' ' '{print $1}')
+STABLE_BRANCH_FULLHASH=$(git rev-parse $STABLE_BRANCH_ID)
+STABLE_BRANCH="6.1 5.15 5.10 5.4 4.19 4.9 4.4"
+
+ARCH=`uname -m`
+Arch=`echo $ARCH | sed -e s/i.86/x86/ -e s/x86_64/x86/ -e s/amd64/x86/ -e s/aarch64.*/arm64/ -e s/mips64el/mips/ -e s/loongarch64.*/loongarch/`
+
+function gdct()
+{
+	GDC_TAG=$(git describe --contains $1 2>/dev/null | awk -F'~' '{print $1}' | awk -F'^' '{print $1}')
+	echo $GDC_TAG
+}
+
+function better_gdct()
+{
+	TAGS=$(gdct $1)
+	if [ -z $TAGS ]; then
+		echo "> $(git describe --abbrev=0 $1)"
+	else
+		echo ">= $TAGS"
+	fi
+}
+
+function branch2name()
+{
+	case "$1" in
+		"kylinos-next")
+			printf "%-13s" "v10-sp4-devel"
+			;;
+		"stable-52-sp3")
+			printf "%-13s" "v10-sp3"
+			;;
+		"stable-25")
+			printf "%-13s" "v10-sp2"
+			;;
+		"stable-23")
+			printf "%-13s" "v10-sp1"
+			;;
+	esac
+}

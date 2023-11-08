@@ -1,0 +1,63 @@
+#!/bin/bash
+
+function usage()
+{
+	echo ""
+	echo -e "  -h, --help\t\t\tshow this help info"
+	echo -e "  -c, --cve\t\t\trequire cve id, insert to commit body"
+	echo -e "  -b, --bug\t\t\trequire bug id, insert to commit body"
+	echo -e "  -t, --task\t\t\trequire task id, insertt to commit body"
+	echo -e "  -s, --stable\t\t\tlet us CC kernel stable team, need backport to stable tree"
+	echo -e "  -a, --k2ci-arch\tSet K2CI-Arch label, Such as None/Arm64/Amd64/Loongarch"
+	echo ""
+	echo "Examples:"
+	echo "  `basename $0` -c CVE-2022-23456 -b 10243 -t 6009 commit-id"
+}
+
+if [ $# -lt 1 ]; then
+	usage
+	exit -1
+fi
+
+SEVERITY_LEVEL="Low"
+K2CI_ARCH="K2CI-Arch: All"
+
+ARGS=`getopt -o hb:t:c:sa: -a --long help,cve:,bug:,task:,stable,k2ci-arch: -- "$@"`
+if [ $? != 0 ]; then
+	echo "Terminating..."
+	usage && exit 1
+fi
+
+eval set -- "${ARGS}"
+
+while true
+do
+	case $1 in
+		-h|--help)
+			usage
+			exit 0;;
+		-c|--cve)
+			CVEID="CVE: $2"
+			SEVERITY_LEVEL="Important"
+			CC_STABLE="%nCc: kernel-stable-team #SP1+"
+			shift 2;;
+		-b|--bug)
+			TASK_AND_BUG_ID_LIST="${TASK_AND_BUG_ID_LIST}bug: $2%n"
+			shift 2;;
+		-t|--task)
+			TASK_AND_BUG_ID_LIST="${TASK_AND_BUG_ID_LIST}task: $2%n"
+			shift 2;;
+		-s|--stable)
+			CC_STABLE="%nCc: kernel-stable-team # STABLE-TREE-NEED"
+			shift 1;;
+		-a|--k2ci-arch)
+			K2CI_ARCH="K2CI-Arch: $2"
+			shift 2;;
+		--)
+			shift
+			break;;
+	esac
+done
+
+msg=$(git log -1 --format="%s%n%nMainline: KYLIN-only%nSeverity: ${SEVERITY_LEVEL}%n${CVEID}%n%n${TASK_AND_BUG_ID_LIST}%n%n%b%n${K2CI_ARCH}%nCc: kylinos-next${CC_STABLE}" $1)
+git commit -s --amend -m "$msg"

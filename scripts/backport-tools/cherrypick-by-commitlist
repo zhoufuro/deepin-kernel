@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for commit in `cat $1`
+do
+	git cherry-pick $commit
+	if [ $? -gt 0 ]; then
+		echo "Pick failed: fix, commit and exit"
+		/bin/bash
+	fi
+done
