@@ -690,6 +690,10 @@ ifdef config-build
 include $(srctree)/arch/$(SRCARCH)/Makefile
 export KBUILD_DEFCONFIG KBUILD_KCONFIG CC_VERSION_TEXT
 
+# Kylin defined
+export KBUILD_BUILD_USER=KYLINSOFT
+export KBUILD_DEFCONFIG=generic_defconfig
+
 config: outputmakefile scripts_basic FORCE
 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
