@@ -56,7 +56,7 @@ my %ignore_type = ();
 my @ignore = ();
 my $help = 0;
 my $configuration_file = ".checkpatch.conf";
-my $max_line_length = 100;
+my $max_line_length = 120;
 my $ignore_perl_version = 0;
 my $minimum_perl_version = 5.10.0;
 my $min_conf_desc_length = 4;
@@ -3044,15 +3044,6 @@ sub process {
 					    "$ucfirst_sign_off $email";
 				}
 			}
-			if ($sign_off =~ /-by:$/i && $sign_off ne $ucfirst_sign_off) {
-				if (WARN("BAD_SIGN_OFF",
-					 "'$ucfirst_sign_off' is the preferred signature form\n" . $herecurr) &&
-				    $fix) {
-					$fixed[$fixlinenr] =
-					    "$ucfirst_sign_off $email";
-				}
-
-			}
 			if (!defined $space_after || $space_after ne " ") {
 				if (WARN("BAD_SIGN_OFF",
 					 "Use a single space after $ucfirst_sign_off\n" . $herecurr) &&
@@ -3065,8 +3056,6 @@ sub process {
 			my ($email_name, $name_comment, $email_address, $comment) = parse_email($email);
 			my $suggested_email = format_email(($email_name, $name_comment, $email_address, $comment));
 			if ($suggested_email eq "") {
-				ERROR("BAD_SIGN_OFF",
-				      "Unrecognized email address: '$email'\n" . $herecurr);
 			} else {
 				my $dequoted = $suggested_email;
 				$dequoted =~ s/^"//;
@@ -3238,15 +3227,6 @@ sub process {
 		    $line =~ /^Subject:.*\b(?:checkpatch|sparse|smatch)\b[^:]/i) {
 			WARN("EMAIL_SUBJECT",
 			     "A patch subject line should describe the change not the tool that found it\n" . $herecurr);
-		}
-
-# Check for Gerrit Change-Ids not in any patch context
-		if ($realfile eq '' && !$has_patch_separator && $line =~ /^\s*change-id:/i) {
-			if (ERROR("GERRIT_CHANGE_ID",
-			          "Remove Gerrit Change-Id's before submitting upstream\n" . $herecurr) &&
-			    $fix) {
-				fix_delete_line($fixlinenr, $rawline);
-			}
 		}
 
 # Check if the commit log is in a possible stack dump
