@@ -40,8 +40,7 @@ function single_local_patch()
 
 	upstream_commit=$(git show $downstream_commit | grep Mainline: | head -n 1 | awk '{print $2}')
 	if [[ x$upstream_commit == x"" ]]; then
-		echo "$downstream_commit don't have upstream commit, please re-check." >&2
-		return
+		upstream_commit=$1
 	fi
 
 	if [[ x$upstream_commit == x"KYLIN-only" ]]; then
